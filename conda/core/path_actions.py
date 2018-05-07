@@ -1107,7 +1107,7 @@ class CacheUrlAction(PathAction):
         self.target_package_basename = target_package_basename
         self.md5sum = md5sum
         self.expected_size_in_bytes = expected_size_in_bytes
-        self.hold_path = self.target_full_path + '.c~'
+        self.hold_path = self.target_full_path# + '.c~'
 
     def verify(self):
         assert '::' not in self.url
@@ -1121,15 +1121,15 @@ class CacheUrlAction(PathAction):
 
         log.trace("caching url %s => %s", self.url, self.target_full_path)
 
-        if lexists(self.hold_path):
-            rm_rf(self.hold_path)
+        # if lexists(self.hold_path):
+        #     rm_rf(self.hold_path)
 
         if lexists(self.target_full_path):
             if self.url.startswith('file:/') and self.url == path_to_url(self.target_full_path):
                 # the source and destination are the same file, so we're done
                 return
-            else:
-                backoff_rename(self.target_full_path, self.hold_path, force=True)
+            # else:
+            #     backoff_rename(self.target_full_path, self.hold_path, force=True)
 
         if self.url.startswith('file:/'):
             source_path = unquote(url_to_path(self.url))
@@ -1188,7 +1188,8 @@ class CacheUrlAction(PathAction):
             backoff_rename(self.hold_path, self.target_full_path, force=True)
 
     def cleanup(self):
-        rm_rf(self.hold_path)
+        pass
+        # rm_rf(self.hold_path)
 
     @property
     def target_full_path(self):
@@ -1266,14 +1267,15 @@ class ExtractPackageAction(PathAction):
         # target_package_cache[package_cache_entry.dist] = package_cache_entry
 
     def reverse(self):
-        rm_rf(self.target_full_path)
+        # rm_rf(self.target_full_path)
         if lexists(self.hold_path):
             log.trace("moving %s => %s", self.hold_path, self.target_full_path)
             rm_rf(self.target_full_path)
-            backoff_rename(self.hold_path, self.target_full_path)
+            # backoff_rename(self.hold_path, self.target_full_path)
 
     def cleanup(self):
-        rm_rf(self.hold_path)
+        pass
+        # rm_rf(self.hold_path)
 
     @property
     def target_full_path(self):
