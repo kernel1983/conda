@@ -342,7 +342,7 @@ class PackageCacheData(object):
                     # anything, and move on.
                     log.debug("unable to extract info/index.json from %s\n  because %r",
                               package_tarball_full_path, e)
-                    rm_rf(package_tarball_full_path)
+                    #rm_rf(package_tarball_full_path)
                     return None
 
             # we were able to read info/index.json, so let's continue

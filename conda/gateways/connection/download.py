@@ -31,8 +31,16 @@ def download(url, target_full_path, md5sum, progress_update_callback=None):
     # TODO: For most downloads, we should know the size of the artifact from what's reported
     #       in repodata.  We should validate that here also, in addition to the 'Content-Length'
     #       header.
+    digest_builder = hashlib.md5()
+    streamed_bytes = 0
     if exists(target_full_path):
-        maybe_raise(BasicClobberError(target_full_path, url, context), context)
+        # maybe_raise(BasicClobberError(target_full_path, url, context), context)
+        with open(target_full_path, 'rb') as fh:
+            chunk = True
+            while chunk:
+                chunk = fh.read(1024*512)
+                digest_builder.update(chunk)
+                streamed_bytes = fh.tell()
 
     if not context.ssl_verify:
         disable_ssl_verify_warning()
@@ -40,23 +48,23 @@ def download(url, target_full_path, md5sum, progress_update_callback=None):
     try:
         timeout = context.remote_connect_timeout_secs, context.remote_read_timeout_secs
         session = CondaSession()
-        resp = session.get(url, stream=True, proxies=session.proxies, timeout=timeout)
+        headers = {'Range': 'bytes=%d-' % streamed_bytes}
+        resp = session.get(url, stream=True, proxies=session.proxies, timeout=timeout, headers=headers)
         if log.isEnabledFor(DEBUG):
             log.debug(stringify(resp))
         resp.raise_for_status()
 
         content_length = int(resp.headers.get('Content-Length', 0))
 
-        digest_builder = hashlib.new('md5')
         try:
-            with open(target_full_path, 'wb') as fh:
-                streamed_bytes = 0
+            with open(target_full_path, 'ab') as fh:
                 for chunk in resp.iter_content(2 ** 14):
                     # chunk could be the decompressed form of the real data
                     # but we want the exact number of bytes read till now
-                    streamed_bytes = resp.raw.tell()
+                    # streamed_bytes = resp.raw.tell()
                     try:
                         fh.write(chunk)
+                        streamed_bytes = fh.tell()
                     except IOError as e:
                         message = "Failed to write to %(target_path)s\n  errno: %(errno)d"
                         # TODO: make this CondaIOError
