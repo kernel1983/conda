@@ -1183,9 +1183,10 @@ class CacheUrlAction(PathAction):
             target_package_cache._urls_data.add_url(self.url)
 
     def reverse(self):
-        if lexists(self.hold_path):
-            log.trace("moving %s => %s", self.hold_path, self.target_full_path)
-            backoff_rename(self.hold_path, self.target_full_path, force=True)
+        pass
+        # if lexists(self.hold_path):
+        #     log.trace("moving %s => %s", self.hold_path, self.target_full_path)
+        #     backoff_rename(self.hold_path, self.target_full_path, force=True)
 
     def cleanup(self):
         pass
@@ -1267,11 +1268,12 @@ class ExtractPackageAction(PathAction):
         # target_package_cache[package_cache_entry.dist] = package_cache_entry
 
     def reverse(self):
+        pass
         # rm_rf(self.target_full_path)
-        if lexists(self.hold_path):
-            log.trace("moving %s => %s", self.hold_path, self.target_full_path)
-            rm_rf(self.target_full_path)
-            # backoff_rename(self.hold_path, self.target_full_path)
+        # if lexists(self.hold_path):
+        #     log.trace("moving %s => %s", self.hold_path, self.target_full_path)
+        #     rm_rf(self.target_full_path)
+        #     backoff_rename(self.hold_path, self.target_full_path)
 
     def cleanup(self):
         pass

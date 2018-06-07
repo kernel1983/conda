@@ -340,14 +340,14 @@ class PackageCacheData(object):
                                 # At this point, we can assume the package tarball is bad.
                                 # Remove everything and move on.
                                 # see https://github.com/conda/conda/issues/6707
-                                rm_rf(package_tarball_full_path)
+                                # rm_rf(package_tarball_full_path)
                                 rm_rf(extracted_package_dir)
                         try:
                             index_json_record = read_index_json(extracted_package_dir)
                         except (IOError, OSError, JSONDecodeError):
                             # At this point, we can assume the package tarball is bad.
                             # Remove everything and move on.
-                            rm_rf(package_tarball_full_path)
+                            # rm_rf(package_tarball_full_path)
                             rm_rf(extracted_package_dir)
                             return None
                     else:
