@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import hashlib
 from logging import DEBUG, getLogger
-from os.path import basename, exists, join
+from os.path import basename, exists, join, getsize
 import tempfile
 import warnings
 
@@ -31,20 +31,15 @@ def download(url, target_full_path, md5sum, progress_update_callback=None):
     # TODO: For most downloads, we should know the size of the artifact from what's reported
     #       in repodata.  We should validate that here also, in addition to the 'Content-Length'
     #       header.
-    digest_builder = hashlib.md5()
     streamed_bytes = 0
     if exists(target_full_path):
         # maybe_raise(BasicClobberError(target_full_path, url, context), context)
-        with open(target_full_path, 'rb') as fh:
-            chunk = True
-            while chunk:
-                chunk = fh.read(1024*512)
-                digest_builder.update(chunk)
-                streamed_bytes = fh.tell()
+        streamed_bytes = getsize(target_full_path)
 
     if not context.ssl_verify:
         disable_ssl_verify_warning()
 
+    digest_builder = hashlib.md5()
     try:
         timeout = context.remote_connect_timeout_secs, context.remote_read_timeout_secs
         session = CondaSession()
@@ -54,10 +49,25 @@ def download(url, target_full_path, md5sum, progress_update_callback=None):
             log.debug(stringify(resp))
         resp.raise_for_status()
 
-        content_length = int(resp.headers.get('Content-Length', 0))
+        if resp.status_code == 206:
+            if exists(target_full_path):
+                with open(target_full_path, 'rb') as fh:
+                    chunk = True
+                    while chunk:
+                        chunk = fh.read(1024*512)
+                        digest_builder.update(chunk)
+                        streamed_bytes = fh.tell()
+        else:
+            streamed_bytes = 0
+
+        content_length = int(resp.headers.get('Content-Length', 0)) + streamed_bytes
+        log.debug(resp.headers.get('Content-Range', ''))
+        # Another way to get the content_length is to parse Content-Range.
+        # However it's working now.
 
         try:
-            with open(target_full_path, 'ab') as fh:
+            with open(target_full_path, 'a+b') as fh:
+                fh.seek(streamed_bytes)
                 for chunk in resp.iter_content(2 ** 14):
                     # chunk could be the decompressed form of the real data
                     # but we want the exact number of bytes read till now
