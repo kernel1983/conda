@@ -1,3 +1,30 @@
+## 4.5.4 (unreleased)
+
+### Bug Fixes
+* fix #7165 conda version check should be restricted to channel conda is from (#7289, #7303)
+* fix #7341 ValueError n cannot be negative (#7360)
+
+
+## 4.5.4 (2018-05-14)
+
+### Improvements
+* resolve #7189 progress bar improvement (#7191 via #7274)
+
+### Bug Fixes
+* fix twofold tarball extraction, improve progress update (#7275)
+* fix #7253 always respect copy LinkType (#7269)
+
+### Contributors
+* @jakirkham
+* @kalefranz
+* @mbargull
+
+
+## 4.5.3 (2018-05-07)
+
+### Bug Fixes
+* fix #7240 conda's configuration context is not initialized in conda.exports (#7244)
+
 ## 4.5.2 (2018-04-27)
 
 ### Bug Fixes
